@@ -61,17 +61,39 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
 // Add loading animation to hire buttons
 document.querySelectorAll('.hire-btn, .btn-primary').forEach(btn => {
     btn.addEventListener('click', function(e) {
-        if (this.getAttribute('href') === '#contact') {
+        if (this.classList.contains('btn-secondary')) {
+            // Download CV button: track download
+            e.preventDefault();
+            const originalText = this.textContent;
+            this.textContent = 'Downloading...';
+            this.style.pointerEvents = 'none';
+            fetch('http://localhost:5000/api/download', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    // Optionally show download count: data.count
+                    // Simulate file download (replace with actual file URL)
+                    window.location.href = '/cv.pdf';
+                })
+                .catch(() => {
+                    alert('Download failed.');
+                })
+                .finally(() => {
+                    this.textContent = originalText;
+                    this.style.pointerEvents = 'auto';
+                });
+        } else if (this.getAttribute('href') === '#contact') {
+            // Allow normal navigation
             return;
+        } else {
+            e.preventDefault();
+            const originalText = this.textContent;
+            this.textContent = 'Loading...';
+            this.style.pointerEvents = 'none';
+            setTimeout(() => {
+                this.textContent = originalText;
+                this.style.pointerEvents = 'auto';
+            }, 1000);
         }
-        e.preventDefault();
-        const originalText = this.textContent;
-        this.textContent = 'Loading...';
-        this.style.pointerEvents = 'none';
-        setTimeout(() => {
-            this.textContent = originalText;
-            this.style.pointerEvents = 'auto';
-        }, 1000);
     });
 });
 
